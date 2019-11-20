@@ -3,17 +3,22 @@ EIP4-S2 Files and assignment
 
 Strategy Taken
 --------------
-
+1. Used 'use_bias = False' which helped to reduce the parameters.
+2. Used filters of 10 to reduce the parameters in ultimate and pen-ultimate layers. 
+Also since the receptive field was reduced to 6x6 and original size was only 28x28, there was no need to still maintain 16 channels in pen-ultimate layer. Hence reduced them to 10 filters and as expected, it didn't lead to any significant drop in accuracy.
+3. Retained dropout value as 0.1 and kept it in all layers. Removing or altering values were not found to improve accuracy.
+4. Retained BatchNormalization() in all layers as removing it in some layers was causing gap between train and validation accuracy to go up. Also, since the parameters where within 15K kept it to keep overfitting under control.
+5. Batch size was retained as 128 as batch size of 32 was taking more time whereas batch size of 64 was not seen to give any added advantage.
+6. Tried various 3x3 convolution combinations with varying filters like (a) 16-32-10x1-MP-then 10 all throughout (b) 16-32-10x1-MP-16-10x1-then 10 all throughout (c) 16-32-10x1-MP-16-16-10x1-then 10 all throughout. Also tried removing dropout from first layer and final 2 layers. But accuracy was seen plateuing at 0.9930-0.9936 range in all cases. Tried various combination of dropout values 0.25, 0.15, 0.05 etc. with the above listed filter combinations but mostly it was staying within 0.9930-0.9936 range. Hence used 3x3 convolution of 16-32-10x1-MP-16-16-16-10-10x4 with batchnormalization and dropout(0.1) at each layer.
 
 Copy and paste the result of your model.evaluate (on test data)
-_______________________________________________________________
-
+---------------------------------------------------------------
 score = model.evaluate(X_test, Y_test, verbose=0)
 print(score)
 [0.021625907252565958, 0.9943]
 
 Copy and paste your Logs for 20 epochs
-_______________________________________
+--------------------------------------
 
 Train on 60000 samples, validate on 10000 samples
 Epoch 1/20
